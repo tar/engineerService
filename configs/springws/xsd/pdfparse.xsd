@@ -1,0 +1,27 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://www.ggapdfviewer.com/pdfparse"
+        xmlns:hr="http://www.ggapdfviewer.com/pdfparse">
+
+    <xs:element name="pdfParseRequest">
+    	<xs:complexType>
+			<xs:sequence>
+            	<xs:element name="hashName" type="xs:string"/>
+				<xs:element name="encodedPdf" type="xs:base64Binary"/>
+            	<xs:element name="fileName" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType> 
+    </xs:element>
+
+	<xs:element name="pdfParseResponse">
+    	<xs:complexType>
+    		<xs:sequence>
+				<xs:element name="responseText" type="xs:string"/>
+				<xs:element name="configProperties" type="xs:string"/>				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
+
+

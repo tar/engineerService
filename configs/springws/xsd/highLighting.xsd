@@ -1,0 +1,26 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://www.ggapdfviewer.com/highLighting"
+        xmlns:hr="http://www.ggapdfviewer.com/highLighting">
+
+    <xs:element name="highLightingRequest">
+    	<xs:complexType>
+			<xs:sequence>
+            	<xs:element name="userQuery" type="xs:string"/>
+				<xs:element name="id" type="xs:int"/>
+				<xs:element name="search" type="xs:boolean"/>
+			</xs:sequence>
+		</xs:complexType> 
+    </xs:element>
+
+	<xs:element name="highLightingResponse">
+    	<xs:complexType>
+    		<xs:sequence>
+				<xs:element name="responseText" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
+
+

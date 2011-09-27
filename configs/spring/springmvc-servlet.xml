@@ -1,0 +1,173 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-2.0.xsd"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc">
+
+	
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+
+	<!-- BEANS -->
+<!-- 
+	<bean id="SearchManager" class="com.ggasoftware.pdfviewer.model.search.SearchManager">
+	</bean>
+ -->
+	<bean id="PDFManager" class="com.ggasoftware.pdfviewer.model.pdf.PDFManager">
+	</bean>
+	
+	<bean id="ObjectFactory" class="com.ggasoftware.pdfviewer.pdfservice.schemas.ObjectFactory">
+	</bean>
+
+	<!-- CONTROLLER MAPPING -->
+	<bean id="urlMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+
+				<prop key="/statusDocument.html">ParseStatusController</prop>
+				<prop key="/urlDocument.html">UrlDocumentController</prop>
+				<prop key="pdfviewer.html">PDFViewerController</prop>
+				<prop key="search.html">SearchController</prop>
+				<prop key="line.html">LineController</prop>
+				<prop key="/*/snapshots/*/*.PNG">ImageController</prop>
+				<prop key="copyimage.html">CopyImageController</prop>
+				<prop key="pdfdownload.html">PdfDownloadController</prop>
+				<prop key="config.html">ConfigController</prop>
+
+			</props>
+		</property>
+	</bean>
+
+	<bean id="UrlDocumentController"
+		class="com.ggasoftware.pdfviewer.web.upload.UrlDocumentController">
+	</bean>
+
+	<bean id="ParseStatusController"
+		class="com.ggasoftware.pdfviewer.web.upload.ParseStatusController">
+		<property name="pdfFileDao" ref="PdfFileDao" />
+	</bean>
+
+	<!-- PDFViewerController -->
+	<bean id="PDFViewerController"
+		class="com.ggasoftware.pdfviewer.web.pdfviewer.PDFViewerController">
+		<property name="pdfFileDao" ref="PdfFileDao" />
+	</bean>
+
+	<!-- Image Controller -->
+	<bean id="ImageController" class="com.ggasoftware.pdfviewer.web.pdfviewer.ImageController">
+
+	</bean>
+
+	<bean id="CopyImageController" class="com.ggasoftware.pdfviewer.web.pdfviewer.CopyImageController">
+
+	</bean>
+	
+	<!-- PdfDownload Controller -->
+
+	<bean id="PdfDownloadController" class="com.ggasoftware.pdfviewer.web.pdfviewer.PdfDownloadController">
+		<property name="pdfFileDao" ref="PdfFileDao" />
+	</bean>
+	
+	<!-- Search Controller -->
+	<bean id="SearchController"
+		class="com.ggasoftware.pdfviewer.web.pdfviewer.SearchController">
+		<property name="pdfDao" ref="PdfFileDao" />
+		<property name="objectFactory" ref="ObjectFactory" />		
+	</bean>
+
+	<!-- Line index Controller -->
+	<bean id="LineController" class="com.ggasoftware.pdfviewer.web.pdfviewer.LineController">
+		<property name="pageDao" ref="PageDao" />
+	</bean>
+
+	<bean id="ConfigController" class="com.ggasoftware.pdfviewer.web.pdfviewer.ConfigController">
+	</bean>
+
+	<!--!!! -->
+
+	<!-- PERSISTENCE -->
+	<!-- Property -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="file:conf/spring/jdbc.properties" />
+	</bean>
+
+	<!-- DataSourse from Property -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url"
+			value="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/${jdbc.database}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- SessionFactory from DataSourse -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration" />
+		<property name="configLocation" value="file:conf/spring/hibernate.cfg.xml" />
+	</bean>
+
+	<!-- Transactions -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- Services mapping -->
+
+	<!-- Page -->
+	<bean id="PageDao" class="com.ggasoftware.pdfviewer.model.persistence.dao.PageDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- PdfFile -->
+	<bean id="PdfFileDao"
+		class="com.ggasoftware.pdfviewer.model.persistence.dao.PdfFileDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<!-- Word -->
+	<bean id="WordDao" class="com.ggasoftware.pdfviewer.model.persistence.dao.WordDao">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- -->
+	<!-- PERSISTENCE -->
+
+	<!-- UPLOAD -->
+	<context:component-scan base-package="com.ggasoftware.pdfviewer.web" />
+
+	<mvc:annotation-driven />
+
+	<mvc:view-controller path="upload.html" view-name="upload" />
+
+	<mvc:view-controller path="index.html" view-name="upload" />
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="100000000000" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<!-- END TAB ADD -->
+
+</beans>
