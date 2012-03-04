@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="file:config/spring/jdbc.properties" />
+	</bean>
+
+	<security:global-method-security
+		secured-annotations="enabled" />
+
+<!-- 	<security:http auto-config="false" access-denied-page="/login.html">
+	-->
+	<security:http auto-config="true" >
+				
+		<security:intercept-url pattern="/admin/**"
+			access="ROLE_ADMINISTRATOR" />
+		<security:intercept-url pattern="/index.html"
+			access="ROLE_USER, ROLE_ADMINISTRATOR" />
+	<!--
+		<security:form-login login-page="/login.html"
+			default-target-url="/**"
+			authentication-failure-url="/login.html" />
+	-->	
+		<security:form-login login-page="/login.jsp" />
+		
+		<security:logout logout-url="/logout"
+			logout-success-url="/login.jsp" />
+
+		<security:intercept-url pattern="/**"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+
+		<!-- <security:session-management invalid-session-url="/index.html" /> -->
+	</security:http>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider
+			user-service-ref="userDetailsService">
+			<security:password-encoder hash="md5" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<bean id="userDetailsService"
+		class="ru.ics.engineerService.persistence.security.UserDetailsDaoService">
+		<constructor-arg ref="userDao" />
+	</bean>
+
+</beans>

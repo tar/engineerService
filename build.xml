@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<project name="engineerService" basedir="." default="main">
+
+	<property file="config/spring/jdbc.properties" />
+
+	<!-- - - - - -  common settings  - - - - - -->
+	<property name="appname" value="engineerService" />
+
+	<property name="database" location="${basedir}/db/sql" />
+
+	<property name="dependency" location="${basedir}/dependency" />
+	<property name="web.root" location="${basedir}/src/webapp" />
+	<property name="sourcecode" location="${basedir}/src/app" />
+
+	<property name="web.web-inf" location="${web.root}/WEB-INF" />
+	<property name="web.libraries" location="${web.web-inf}/lib" />
+	<property name="web.classes" location="${web.web-inf}/classes" />
+
+	<property name="web.war" location="${appname}.war" />
+
+	<property name="target.path" location="${basedir}/target/" />
+	<property name="webapplication.java.maxmemory" value="600M" />
+
+	<property name="web.root.configs" location="${web.root}/configs" />
+	<property name="web.root.upload" location="${web.root}/upload" />
+
+	
+	<!-- - - - - -  dependencies  - - - - - -->
+	<fileset id="lib.jars" dir="${web.libraries}">
+		<include name="*.jar" />
+	</fileset>
+
+	<!-- - - - - -  project settings  - - - - - -->
+	<path id="application.classpath">
+		<fileset refid="lib.jars" />
+	</path>
+
+	<property name="web.war.compress" value="false" />
+
+	<!-- - - - - -  Tomcat settings  - - - - - -->
+	<property name="tomcat.image" location="${dependency}/apache-tomcat-6.0.26" />
+	<property name="tomcat.server" location="${basedir}/server/tomcat" />
+	<property name="deployment.tomcat.context" value="${appname}" />
+	<!--"${appname}" /> -->
+
+	<property name="deployment.tomcat.context.file" location="${basedir}/config/tomcat/dev/context.xml" />
+	<property name="deployment.tomcat.server.xml" location="${basedir}/config/tomcat/dev/server.xml" />
+
+	<property name="spring.conf" location="${basedir}/config/spring" />
+
+	<filelist id="spring.conf.files" dir="${spring.conf}">
+		<file name="springmvc-servlet.xml" />
+		<file name="springmvc-security.xml" />
+		<file name="springws-client.xml" />
+		<file name="web.xml" />
+		<file name="jdbc.properties" />
+	</filelist>
+
+	<!-- - - - - -  project tasks  - - - - - -->
+	<target name="main" depends="war" />
+
+	<target name="war" depends="tomcat.copy-conf">
+
+		<delete dir="${target.path}/tmp" />
+		<mkdir dir="${target.path}/tmp" />
+
+		<copy todir="${target.path}/tmp">
+			<fileset dir="${web.root}" excludes="WEB-INF/classes/**/*.class, **/*.git/**, upload/**/*, config/*.properties, lucene_index/**/*.*, lucene_index/**/*" />
+		</copy>
+
+		<delete dir="${target.path}/tmp/upload" />
+		<delete dir="${target.path}/tmp/config" />
+
+		<antcall target="compile" />
+
+		<mkdir dir="${target.path}/war" />
+
+		<delete dir="${target.path}/war" />
+		<mkdir dir="${target.path}/war" />
+
+		<war destfile="${target.path}/war/${appname}.war" basedir="${target.path}/tmp" />
+
+		<delete dir="${target.path}/tmp" />
+	</target>
+
+	<target name="compile">
+		<delete dir="${target.path}/tmp/WEB-INF/classes" />
+		<mkdir dir="${target.path}/tmp/WEB-INF/classes" />
+		<javac destdir="${target.path}/tmp/WEB-INF/classes" debug="off" deprecation="off" optimize="off">
+
+			<src path="${sourcecode}" />
+			<exclude name="**/.git/**" />
+			<classpath refid="application.classpath" />
+		</javac>
+		<copy file="${spring.conf}/jdbc.properties" todir="${target.path}/tmp/WEB-INF/classes" />
+		<copy file="${basedir}/mail.properties" todir="${target.path}/tmp/WEB-INF/classes" />
+		<copy file="${spring.conf}/log4j.properties" todir="${target.path}/tmp/WEB-INF/classes" />
+	</target>
+
+	<target name="tomcat.deploy-and-start" depends="tomcat.deploy, tomcat.start" />
+
+	<target name="tomcat.deploy" depends="compile, tomcat.copy-conf" description="If you get the error Build Failed, execute  'tomcat.stop' to stop Tomcat">
+		<delete dir="${tomcat.server}" />
+		<mkdir dir="${tomcat.server}" />
+
+		<copy todir="${tomcat.server}">
+			<fileset dir="${tomcat.image}" excludes="webapps/**, conf/server.xml" />
+		</copy>
+
+		<copy todir="${tomcat.server}">
+			<fileset dir="${tomcat.image}" excludes="webapps/**, conf/server.xml" />
+		</copy>
+
+		<copy file="${deployment.tomcat.context.file}" tofile="${tomcat.server}/conf/Catalina/localhost/ROOT.xml">
+			<!-- ${deployment.tomcat.context}.xml"> -->
+			<filterset>
+				<filter token="web.root" value="${web.root}" />
+				<filter token="deployment.tomcat.context" value="${deployment.tomcat.context}" />
+				<filter token="deployment.tomcat.logs.dir" value="${tomcat.server}/logs/${deployment.tomcat.context}" />
+			</filterset>
+		</copy>
+
+		<copy file="${deployment.tomcat.server.xml}" tofile="${tomcat.server}/conf/server.xml" />
+
+		<delete dir="${web.classes}" />
+		<mkdir dir="${web.classes}" />
+		<copydir dest="${web.classes}" src="${target.path}/tmp/WEB-INF/classes">
+		</copydir>
+<!--
+		<delete dir="${web.resources}" />
+		<mkdir dir="${web.resources}" />
+		<copydir dest="${web.resources}" src="${basedir}/resources" />
+-->
+	</target>
+
+	<target name="tomcat.debug" depends="tomcat.copy-conf">
+		<delete dir="${tomcat.server}/logs" includes="**/*.*" />
+		<java jar="${tomcat.server}/bin/bootstrap.jar" fork="true">
+			<jvmarg value="-Dcatalina.home=${tomcat.server}" />
+			<jvmarg value="-Dfile.encoding=UTF-8" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1044" />
+		</java>
+	</target>
+
+	<target name="tomcat.start" depends="tomcat.copy-conf">
+		<delete dir="${tomcat.server}/logs" includes="**/*.*" />
+		<java jar="${tomcat.server}/bin/bootstrap.jar" fork="true" maxmemory="${webapplication.java.maxmemory}">
+			<jvmarg value="-Dcatalina.home=${tomcat.server}" />
+			<jvmarg value="-Dfile.encoding=UTF-8" />
+		</java>
+	</target>
+
+	<target name="tomcat.stop">
+		<java jar="${tomcat.server}/bin/bootstrap.jar" fork="true">
+			<jvmarg value="-Dcatalina.home=${tomcat.server}" />
+			<arg line="stop" />
+		</java>
+	</target>
+
+	<target name="tomcat.copy-conf">
+		<copy todir="${web.web-inf}" verbose="true" overwrite="true">
+			<filelist refid="spring.conf.files" />
+		</copy>
+
+		<replace file="${web.web-inf}/springmvc-servlet.xml" token="file:config/spring" value="WEB-INF" />
+		<copy file="${spring.conf}/log4j.properties" todir="${sourcecode}" />
+		<copy file="${basedir}/mail.properties" todir="${sourcecode}" />
+		<copy file="${spring.conf}/jdbc.properties" todir="${sourcecode}" />
+	</target>
+
+	
+
+	<!--          -->
+	<!-- DATABASE -->
+	<!--          -->
+
+	<property name="database.create.message" value="!!!pgAdmin, PdfViewer and all connections to Database must be closed!!!" />
+	<property name="database.create.all.message" value="!!!PostgreSQL should have a superuser 'postgres' with password 'postgres'!!!" />
+
+	<target name="database.create" >
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/template1" userid="${jdbc.username}" password="${jdbc.password}" autocommit="true">
+			<transaction src="${database}/create-db.sql" />
+		</sql>
+	</target>
+
+	<target name="database.drop">
+		<echo> ${database.create.message} </echo>
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/template1" userid="${jdbc.username}" password="${jdbc.password}" autocommit="true">
+			<transaction src="${database}/drop-db.sql" />
+		</sql>
+	</target>
+
+	<target name="database.create-role-and-user">
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/template1" userid="${jdbc.username}" password="${jdbc.password}" autocommit="true" onerror="continue" src="${database}/create-role-and-user.sql" />
+	</target>
+
+	<target name="database.grant-role-and-user">
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/template1" userid="${jdbc.username}" password="${jdbc.password}" autocommit="true" src="${database}/grant-role-and-user.sql" />
+	</target>
+
+	<target name="database.restore">
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/${jdbc.database}" userid="${jdbc.username}" password="${jdbc.password}" src="${database}/restore-db.sql" />
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/${jdbc.database}" userid="${jdbc.username}" password="${jdbc.password}" src="${database}/fill-main-data.sql" />
+	</target>
+
+
+	<target name="tomcat.Init.Debugger">
+		<antcall target="tomcat.copy-conf" />
+	</target>
+
+	<target name="tomcat.clean">
+		<delete dir="${web.classes}" />
+		<mkdir dir="${web.classes}" />
+	</target>
+
+	<!-- -->
+
+	<target name="database.update-seq">
+		<sql encoding="${jdbc.characterEncoding}" classpath="${jdbc.driverClassPath}" driver="${jdbc.driverClassName}" url="jdbc:${jdbc.server}://${jdbc.url}:${jdbc.port}/${jdbc.database}" userid="${jdbc.username}" password="${jdbc.password}" src="${database}/update-seq.sql" />
+	</target>
+
+
+</project>

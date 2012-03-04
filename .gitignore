@@ -1,0 +1,12 @@
+bin/*
+.git
+server/tomcat
+target
+src/webapp/WEB-INF/classes
+src/webapp/WEB-INF/*.xml
+src/webapp/WEB-INF/*.properties
+src/webapp/WEB-INF/*.txt
+src/webapp/configs
+src/app/*.properties
+engineerService.log
+*.*~
