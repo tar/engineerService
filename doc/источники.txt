@@ -10,3 +10,11 @@ http://www.ibm.com/developerworks/ru/library/l-paroshina_toolkits/index.html
 http://ru.wikipedia.org/wiki/%D0%93%D1%80%D0%B8%D0%B4
 
 http://www.cloudscaling.com/blog/cloud-computing/grid-cloud-hpc-whats-the-diff/
+
+http://www.silverlighthack.com/post/2011/02/27/IaaS-PaaS-and-SaaS-Terms-Explained-and-Defined.aspx
+
+http://plove.eveel.ru/2011/11/05/saas-paas-iaas
+
+http://www.bytemag.ru/articles/detail.php?ID=14808
+
+http://www.interserver.net/xen-vs-kvm-vs-openvz-vs-vmware-vs-cloud
