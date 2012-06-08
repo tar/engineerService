@@ -94,6 +94,7 @@
 		</javac>
 		<copy file="${spring.conf}/jdbc.properties" todir="${target.path}/tmp/WEB-INF/classes" />
 		<copy file="${basedir}/mail.properties" todir="${target.path}/tmp/WEB-INF/classes" />
+		<copy file="${basedir}/XCP.properties" todir="${target.path}/tmp/WEB-INF/classes" />
 		<copy file="${spring.conf}/log4j.properties" todir="${target.path}/tmp/WEB-INF/classes" />
 	</target>
 

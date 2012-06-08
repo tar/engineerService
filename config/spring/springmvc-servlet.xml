@@ -27,6 +27,7 @@
 			<props>
 				<prop key="index.html">AboutController</prop>
 				<prop key="login.html">LoginController</prop>
+				<prop key="startVM.html">StartVMController</prop>
 			</props>
 		</property>
 	</bean>
@@ -39,6 +40,9 @@
 	
 	<bean id="LoginController"
 		class="ru.ics.engineerService.controllers.LoginController">
+	</bean>
+	<bean id="StartVMController"
+		class="ru.ics.engineerService.controllers.StartVMController">
 	</bean>
 	
 	<!-- Controller Beans  -->
