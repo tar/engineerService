@@ -23,6 +23,10 @@ public class StartVMController implements Controller{
 	private static final String PARAMETER_VM_TYPE = "_vmType";
 	private static final String VIEW_NAME_SUCCESS = "success";
 	private static final String VIEW_NAME_FAIL = "error";
+/*
+ * Processing HTTP request. 
+ * @see org.springframework.web.servlet.mvc.Controller#handleRequest(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+ */
 	@Override
 	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// TODO Auto-generated method stub

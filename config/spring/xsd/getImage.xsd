@@ -1,30 +1,26 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        elementFormDefault="qualified"
-        targetNamespace="http://www.ggapdfviewer.com/getImage"
-        xmlns:hr="http://www.ggapdfviewer.com/getImage">
+	elementFormDefault="qualified" targetNamespace="http://www.icsengineerservice.ru/solveTask"
+	xmlns:hr="http://www.icsengineerservice.ru/solveTask>
 
-    <xs:element name="getImageRequest">
-    	<xs:complexType>
-			<xs:sequence>				
-				<xs:element name="hashName" type="xs:string"/>
-				<xs:element name="imageNumber" type="xs:int"/>
-				<xs:element name="imageFormat" type="xs:string"/>
-				<xs:element name="quality" type="xs:string"/>
-				<xs:element name="imageHeight" type="xs:int"/>
-				<xs:element name="imageWidth" type="xs:int"/>
-				<xs:element name="sendImage" type="xs:boolean"/>
-			</xs:sequence>
-		</xs:complexType> 
-    </xs:element>
-
-	<xs:element name="getImageResponse">
-    	<xs:complexType>
-    		<xs:sequence>
-				<xs:element name="encodedImage" type="xs:base64Binary"/>
+ 	<xs:element name="solveTaskRequest ">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="taskName" type="xs:string" />
+				<xs:element name="uid" type="xs:int" />
+				<xs:element name="taskType" type="xs:string" />
+				<xs:element name="encodedTask" type="xs:base64Binary" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
+	
+	<xs:element name="solveTaskResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="uid" type="xs:string" />
+				<xs:element name="respone" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>
 
 
